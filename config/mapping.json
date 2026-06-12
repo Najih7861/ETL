@@ -3,9 +3,16 @@
   "target":  { "delimiter": ",", "encoding": "utf-8", "writeHeader": true },
 
   "columns": [
-    { "source": "customer_id", "target": "CustomerId", "type": "int" },
-    { "sources": ["firstname", "lastname"], "separator": " ", "target": "Fullname", "transform": "normalizeSpaces" },
-    { "source": "email",  "target": "Email", "transform": "lower" }
+    { "source": "customer_id", "target": "CustomerId", "type": "int",
+      "validation": { "required": true, "min": 1 } },
+    { "sources": ["firstname", "lastname"], "separator": " ", "target": "Fullname", "transform": "normalizeSpaces",
+      "validation": { "required": true, "minLength": 2 } },
+    { "source": "email",  "target": "Email", "transform": "lower",
+      "validation": { "required": true, "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" } },
+    { "source": "age", "target": "Age", "type": "int",
+      "validation": { "min": 0, "max": 120 } },
+    { "source": "gender", "target": "Gender",
+      "validation": { "allowedValues": ["male", "female"] } }
   ],
 
   "outputs": [

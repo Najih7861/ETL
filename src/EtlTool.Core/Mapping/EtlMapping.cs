@@ -89,4 +89,35 @@ public sealed class ColumnMapping
 
     /// <summary>For type=date: how to render the output value (e.g. "yyyy-MM-dd").</summary>
     public string? Format { get; set; }
+
+    /// <summary>Optional per-column validation rules applied after type conversion.</summary>
+    public ColumnValidation? Validation { get; set; }
+}
+
+/// <summary>
+/// Validation rules for one output column, applied to the converted value. A value that
+/// fails any rule makes the row invalid (routed to the invalid folder with the reason).
+/// </summary>
+public sealed class ColumnValidation
+{
+    /// <summary>Reject the row when the value is missing/empty.</summary>
+    public bool Required { get; set; }
+
+    /// <summary>Regex the value's string form must match (e.g. an email pattern).</summary>
+    public string? Pattern { get; set; }
+
+    /// <summary>Minimum string length.</summary>
+    public int? MinLength { get; set; }
+
+    /// <summary>Maximum string length.</summary>
+    public int? MaxLength { get; set; }
+
+    /// <summary>Minimum numeric value (for int/decimal columns).</summary>
+    public decimal? Min { get; set; }
+
+    /// <summary>Maximum numeric value (for int/decimal columns).</summary>
+    public decimal? Max { get; set; }
+
+    /// <summary>Whitelist of permitted values; the value must be one of these.</summary>
+    public List<string>? AllowedValues { get; set; }
 }

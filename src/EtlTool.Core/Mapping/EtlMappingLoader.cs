@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace EtlTool.Core.Mapping;
 
@@ -59,6 +60,9 @@ public static class EtlMappingLoader
             if (column.Type is not null && !KnownColumnTypes.Contains(column.Type))
                 throw new InvalidOperationException(
                     $"Column '{column.Target}' uses unknown type '{column.Type}'. Allowed: {string.Join(", ", KnownColumnTypes)}.");
+
+            if (column.Validation is not null)
+                ValidateColumnValidation(column.Target, column.Validation);
         }
 
         foreach (var filter in mapping.Filters ?? new List<RowFilter>())
@@ -71,6 +75,34 @@ public static class EtlMappingLoader
             if (output.Filter is not null)
                 ValidateFilter(output.Filter);
         }
+    }
+
+    private static void ValidateColumnValidation(string target, ColumnValidation rules)
+    {
+        if (rules.Pattern is not null)
+        {
+            try { _ = new Regex(rules.Pattern); }
+            catch (ArgumentException ex)
+            {
+                throw new InvalidOperationException(
+                    $"Column '{target}' has an invalid validation pattern '{rules.Pattern}': {ex.Message}", ex);
+            }
+        }
+
+        if (rules.MinLength is { } minLen && minLen < 0)
+            throw new InvalidOperationException($"Column '{target}' has a negative 'minLength'.");
+        if (rules.MaxLength is { } maxLen && maxLen < 0)
+            throw new InvalidOperationException($"Column '{target}' has a negative 'maxLength'.");
+        if (rules.MinLength is { } min && rules.MaxLength is { } max && min > max)
+            throw new InvalidOperationException(
+                $"Column '{target}' has 'minLength' ({min}) greater than 'maxLength' ({max}).");
+
+        if (rules.Min is { } minVal && rules.Max is { } maxVal && minVal > maxVal)
+            throw new InvalidOperationException(
+                $"Column '{target}' has 'min' ({minVal}) greater than 'max' ({maxVal}).");
+
+        if (rules.AllowedValues is { Count: 0 })
+            throw new InvalidOperationException($"Column '{target}' has an empty 'allowedValues' list.");
     }
 
     private static void ValidateFilter(RowFilter filter)

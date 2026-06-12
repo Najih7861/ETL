@@ -32,7 +32,7 @@ public sealed class RowTransformer
         };
     }
 
-    /// <summary>Builds the output row from the input row. Throws if a value fails type conversion.</summary>
+    /// <summary>Builds the output row from the input row. Throws if a value fails type conversion or validation.</summary>
     public CsvRow TransformRow(CsvRow inputRow)
     {
         var outputRow = new CsvRow();
@@ -45,6 +45,8 @@ public sealed class RowTransformer
                 value = transform.Apply(value);
 
             value = ValueTypeConverter.ConvertToType(value, column);
+
+            ValueValidator.Validate(value, column);
 
             outputRow[column.Target] = value;
         }
