@@ -1,0 +1,15 @@
+{
+  "source":  { "delimiter": ",", "hasHeader": true, "encoding": "utf-8", "trimFields": true },
+  "target":  { "delimiter": ",", "encoding": "utf-8", "writeHeader": true },
+
+  "columns": [
+    { "source": "customer_id", "target": "CustomerId", "type": "int" },
+    { "sources": ["firstname", "lastname"], "separator": " ", "target": "Fullname", "transform": "normalizeSpaces" },
+    { "source": "email",  "target": "Email", "transform": "lower" }
+  ],
+
+  "outputs": [
+    { "suffix": "male",   "filter": { "column": "gender", "op": "equals", "value": "male" } },
+    { "suffix": "female", "filter": { "column": "gender", "op": "equals", "value": "female" } }
+  ]
+}

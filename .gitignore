@@ -1,0 +1,62 @@
+## ── Build output & restored packages ───────────────────────────────
+# bin/ and obj/ hold compiled assemblies and the NuGet packages restored at build time.
+[Bb]in/
+[Oo]bj/
+
+# Debug/Release build folders anywhere in the tree.
+[Dd]ebug/
+[Rr]elease/
+
+## ── Compiled binaries (present & future, any location) ─────────────
+*.dll
+*.exe
+*.pdb
+*.so
+*.dylib
+
+## ── NuGet packages ─────────────────────────────────────────────────
+packages/
+.nuget/
+*.nupkg
+*.snupkg
+
+## ── Tests (results & coverage) ─────────────────────────────────────
+[Tt]est[Rr]esults/
+*.trx
+*.coverage
+*.coverage.xml
+coverage*.json
+coverage*.cobertura.xml
+
+## ── Caches (IDE, build, restore) ───────────────────────────────────
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.cache
+project.assets.json
+*.binlog
+msbuild.log
+
+## ── Generated runtime artifacts ────────────────────────────────────
+# Logs and ETL data folders (input/output/invalid) are runtime data, not source.
+logs/
+storage/input/
+storage/output/
+storage/invalid/
+
+## ── tests/ : track ONLY .cs and .json (ignore everything else) ─────
+# Ignore everything under tests/, then re-include source (.cs) and config (.json) only.
+# .csproj, bin/, obj/, etc. stay ignored.
+tests/**
+!tests/**/
+!tests/**/*.cs
+!tests/**/*.json
+# Never track build output inside tests (would otherwise re-include generated .cs in obj/).
+tests/**/[Bb]in/
+tests/**/[Oo]bj/
+
+## ── OS noise ───────────────────────────────────────────────────────
+Thumbs.db
+.DS_Store
