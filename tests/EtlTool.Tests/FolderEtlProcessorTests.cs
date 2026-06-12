@@ -107,17 +107,18 @@ public class FolderEtlProcessorTests : IDisposable
     }
 
     [Fact]
-    public void Run_with_trimFields_cleans_padded_data_and_still_routes_by_gender()
+    public void Run_with_normalizeWhitespace_cleans_every_column_and_still_routes_by_gender()
     {
-        // trimFields trims every cell on read, so padded "  male" still matches the split
-        // and Email/Fullname come out clean.
+        // normalizeWhitespace cleans EVERY field on read: trims ends and collapses internal
+        // runs. So padded "  male " matches the split, and all columns come out clean.
         File.WriteAllText(_mappingFilePath,
             """
             {
-              "source": { "delimiter": ",", "hasHeader": true, "trimFields": true },
+              "source": { "delimiter": ",", "hasHeader": true, "normalizeWhitespace": true },
               "target": { "delimiter": ",", "writeHeader": true },
               "columns": [
-                { "sources": ["firstname", "lastname"], "separator": " ", "target": "Fullname", "transform": "normalizeSpaces" },
+                { "sources": ["firstname", "lastname"], "separator": " ", "target": "Fullname" },
+                { "source": "city", "target": "City" },
                 { "source": "email", "target": "Email", "transform": "lower" }
               ],
               "outputs": [
@@ -127,15 +128,16 @@ public class FolderEtlProcessorTests : IDisposable
             }
             """);
         File.WriteAllText(Path.Combine(_inputDir, "customers.csv"),
-            "customer_id,firstname,lastname,gender,email\n" +
-            "100001,  Rahul , Perez ,  male , Rahul.Perez@TEST.io \n");
+            "customer_id,firstname,lastname,gender,city,email\n" +
+            "100001,  Rahul , Perez ,  male , New   York , Rahul.Perez@TEST.io \n");
 
         var result = Run();
 
         result.TotalRowsWritten.Should().Be(1);
         result.TotalRowsInvalid.Should().Be(0);
         var maleLines = File.ReadAllLines(Path.Combine(_outputDir, "customers_male.csv"));
-        maleLines[1].Should().Be("Rahul Perez,rahul.perez@test.io");   // trimmed + single space + lowercased
+        // Fullname combined cleanly, City internal double-space collapsed, Email trimmed+lowercased.
+        maleLines[1].Should().Be("Rahul Perez,New York,rahul.perez@test.io");
     }
 
     [Fact]

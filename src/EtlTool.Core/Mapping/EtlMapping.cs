@@ -26,8 +26,11 @@ public sealed class SourceFormat
     public bool HasHeader { get; set; } = true;
     public string Encoding { get; set; } = "utf-8";
 
-    /// <summary>Trim leading/trailing whitespace from every field as it is read.</summary>
-    public bool TrimFields { get; set; } = false;
+    /// <summary>
+    /// Remove extra spaces from EVERY field as it is read: trims the ends and collapses
+    /// internal whitespace runs to a single space. Applies to all columns.
+    /// </summary>
+    public bool NormalizeWhitespace { get; set; } = false;
 }
 
 /// <summary>How to write the output CSV.</summary>

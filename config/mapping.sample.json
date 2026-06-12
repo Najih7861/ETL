@@ -1,5 +1,5 @@
 {
-  "source":  { "delimiter": ",", "hasHeader": true, "encoding": "utf-8", "trimFields": true },
+  "source":  { "delimiter": ",", "hasHeader": true, "encoding": "utf-8", "normalizeWhitespace": true },
   "target":  { "delimiter": ",", "encoding": "utf-8", "writeHeader": true },
 
   "columns": [

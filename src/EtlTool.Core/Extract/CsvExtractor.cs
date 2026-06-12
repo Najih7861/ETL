@@ -4,6 +4,7 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using EtlTool.Core.Mapping;
 using EtlTool.Core.Models;
+using EtlTool.Core.Transform;
 
 namespace EtlTool.Core.Extract;
 
@@ -21,8 +22,6 @@ public sealed class CsvExtractor
         {
             Delimiter = source.Delimiter,
             HasHeaderRecord = source.HasHeader,
-            // Trim whitespace around each field (and header) when requested.
-            TrimOptions = source.TrimFields ? TrimOptions.Trim : TrimOptions.None,
         };
 
         using var streamReader = new StreamReader(csvFilePath, encoding);
@@ -46,15 +45,19 @@ public sealed class CsvExtractor
             if (source.HasHeader)
             {
                 foreach (var columnName in headerColumns)
-                    row[columnName] = csvReader.GetField(columnName);
+                    row[columnName] = CleanField(csvReader.GetField(columnName), source);
             }
             else
             {
                 // Headerless files expose columns by zero-based ordinal: "0", "1", ...
                 for (var i = 0; i < csvReader.Parser.Count; i++)
-                    row[i.ToString(CultureInfo.InvariantCulture)] = csvReader.GetField(i);
+                    row[i.ToString(CultureInfo.InvariantCulture)] = CleanField(csvReader.GetField(i), source);
             }
             yield return row;
         }
     }
+
+    // Remove extra spaces from every field when the source asks for it.
+    private static string? CleanField(string? value, SourceFormat source)
+        => source.NormalizeWhitespace ? Whitespace.Normalize(value) : value;
 }
